@@ -13,6 +13,9 @@ Test Python files:
 2. Replaying Mouse Movements and Clicks
 3. Combining with Screenshot Capture
 
+## Potential Research Scope and Objectives
+This interdisciplinary study aims to investigate how building operators interact with control systems and explore the potential of AI to mimic and enhance these interactions for improved facilities management. By combining insights from psychology, AI, and facilities management, the research will analyze cognitive processes, decision-making strategies, and user interactions through qualitative methods such as interviews, observations, and surveys, as well as quantitative data collection and performance metrics. The study will implement and test an AI system using GUI interactions and OCR, comparing its effectiveness against traditional methods. Performance evaluation, operator feedback, and cost-benefit analysis will be conducted to assess the impact of AI on operational efficiency, energy savings, and occupant comfort, with findings documented in academic publications and presentations.
+
 ## License
 MIT License
 
