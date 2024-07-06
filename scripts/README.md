@@ -1,0 +1,2 @@
+# power shell scripts
+These are windows power shell scripts to test authorization of the BAS in Pen tester format or web app testing personal. Data used here will be used with the `selinium` and python to automate the BAS screenshotting processes.

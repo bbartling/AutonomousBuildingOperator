@@ -1,135 +1,83 @@
-import pyautogui
-import cv2
-import numpy as np
-from PIL import ImageGrab
+from selenium import webdriver
+from selenium.webdriver.edge.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import time
+from datetime import datetime
 import os
-import threading
-import keyboard
 
 # Ensure the data directory exists
 os.makedirs('data', exist_ok=True)
 
-# Load templates for different screens or elements
-templates = {}
-template_dir = 'templates'
-for filename in os.listdir(template_dir):
-    if filename.endswith('.png'):
-        template_name = os.path.splitext(filename)[0]
-        templates[template_name] = cv2.imread(os.path.join(template_dir, filename), 0)
-        print(f"Loaded template: {template_name}")
+# Credentials for login
+username = "asdf"
+password = "asdf"
 
-# Define constants
-SLEEP_THRESHOLD = 60  # 1 minute
-SLEEP_DURATION = 5  # Sleep duration in seconds between movements
-SCREENSHOT_INTERVAL = 5  # Take screenshot every 5 seconds
+# URLs to visit
+urls = {
+    '1st_floor_space_temps': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/First_Floor/First_Floor.html&extra=/evox/equipment/generic/generic/6',
+    'vav_1_12': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/vav_stc_vcwf_Add_Reheat/vav_stc_vcwf_Add_Reheat.html&extra=/evox/equipment/scc/vav/4',
+    'vav_1_1': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/vav_stc_vcwf_Add_Reheat/vav_stc_vcwf_Add_Reheat.html&extra=/evox/equipment/scc/vav/7',
+    'vav_1_13': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/vav_stc_vcwf_Add_Reheat/vav_stc_vcwf_Add_Reheat.html&extra=/evox/equipment/scc/vav/5',
+    'vav_1_5': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/vav_stc_vcwf_Add_Reheat/vav_stc_vcwf_Add_Reheat.html&extra=/evox/equipment/scc/vav/11',
+    'vav_1_8': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/std/vav_stc_vcwf/vav_stc_vcwf.html&extra=/evox/equipment/scc/vav/40',
+    '2nd_floor_space_temps': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/Second_Floor/Second_Floor.html&extra=/evox/equipment/generic/generic/6',
+    'vav_2_1': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/std/vav_stc_vcwf/vav_stc_vcwf.html&extra=/evox/equipment/scc/vav/36',
+    'vav_2_14': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/vav_stc_vcwf_Add_Reheat/vav_stc_vcwf_Add_Reheat.html&extra=/evox/equipment/scc/vav/25',
+    'vav_2_12': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/std/vav_stc_vcwf/vav_stc_vcwf.html&extra=/evox/equipment/scc/vav/38',
+    'vav_2_9': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/vav_stc_vcwf_Add_Reheat/vav_stc_vcwf_Add_Reheat.html&extra=/evox/equipment/scc/vav/34',
+    'vav_2_4': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/vav_stc_vcwf_Add_Reheat/vav_stc_vcwf_Add_Reheat.html&extra=/evox/equipment/scc/vav/20',
+    'rtu': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/WECC_RL_060/WECC_RL_060.html&extra=/evox/equipment/dac/generic/2',
+    'boiler': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/Hot%20Water%20System/Hot%20Water%20System.html&extra=/evox/equipment/generic/generic/6'
+}
 
-# Flag to indicate if the script should stop
-stop_flag = False
+# Initialize the WebDriver for Edge
+service = Service('C:/Users/BBartling/Documents/edgedriver_win64/msedgedriver.exe')  # Update with the path to your WebDriver
+options = webdriver.EdgeOptions()
+options.add_argument('--ignore-certificate-errors')  # Ignore SSL certificate errors
+driver = webdriver.Edge(service=service, options=options)
 
-def stop_replay():
-    global stop_flag
-    stop_flag = True
-    print("Replay stopped by user")
+# Function to log in to the site
+def login():
+    driver.get('https://10.200.200.26/hui/index.html')
+    WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.NAME, "userid")))
+    
+    # Locate the username and password fields and the login button
+    username_field = driver.find_element(By.NAME, "userid")
+    password_field = driver.find_element(By.NAME, "password")
+    login_button = driver.find_element(By.ID, "logon")
 
-# Listen for the 'k' key to stop the replay
-keyboard.add_hotkey('k', stop_replay)
+    # Enter the username and password
+    username_field.send_keys(username)
+    password_field.send_keys(password)
 
-# Function to take a screenshot
-def take_screenshot():
-    screenshot = ImageGrab.grab()
-    screenshot_path = f"data/screenshot_{int(time.time())}.png"
-    screenshot.save(screenshot_path)
-    print(f"Screenshot saved: {screenshot_path}")
+    # Click the login button
+    login_button.click()
+    WebDriverWait(driver, 10).until(EC.url_contains("hui.html"))  # Adjust this as needed for a successful login
 
-# Function to capture the current screen
-def screenshot():
-    screen = ImageGrab.grab()
-    return np.array(screen)
+try:
+    # Perform login
+    login()
+    
+    # Set the browser to full screen
+    driver.fullscreen_window()
+    driver.execute_script("document.body.style.zoom='100%'")  # Adjust the zoom level as needed
 
-# Function to match a template in the current screen
-def match_template(image, template):
-    result = cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
-    _, max_val, _, max_loc = cv2.minMaxLoc(result)
-    print(f"Template match value: {max_val}")
-    return max_val, max_loc
+    while True:
+        for device_name, url in urls.items():
+            print(f"Opening URL for {device_name}: {url}")
+            driver.get(url)
+            time.sleep(10)  # Wait for the page to load
 
-# State Machine for handling different screens
-class StateMachine:
-    def __init__(self, templates):
-        self.state = 'main_screen'
-        self.templates = templates
-        self.template_keys = list(templates.keys())
-        self.current_index = 0
-        print(f"Initial state: {self.state}")
+            # Take a screenshot
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            screenshot_path = f"data/{device_name}_{timestamp}.png"
+            driver.save_screenshot(screenshot_path)
+            print(f"Screenshot saved: {screenshot_path}")
 
-    def transition(self, new_state):
-        print(f"Transitioning from {self.state} to {new_state}")
-        self.state = new_state
-
-    def handle_state(self, screenshot):
-        try:
-            if self.state == 'error_popup':
-                self.handle_error_popup(screenshot)
-            else:
-                self.handle_generic_state(screenshot)
-        except Exception as e:
-            print(f"Error in state {self.state}: {e}")
-            self.transition('main_screen')
-
-    def handle_generic_state(self, screenshot):
-        template_name = self.template_keys[self.current_index]
-        template = self.templates[template_name]
-        print(f"Handling state: {self.state} with template: {template_name}")
-        max_val, max_loc = match_template(screenshot, template)
-        if max_val > 0.8:
-            print(f"Match found for {template_name} at location {max_loc}")
-            pyautogui.click(max_loc[0], max_loc[1])  # Example action
-            self.current_index = (self.current_index + 1) % len(self.template_keys)
-            next_state = self.template_keys[self.current_index]
-            self.transition(next_state)
-        else:
-            print(f"No match found for {template_name}. Transitioning to error_popup")
-            self.transition('error_popup')
-
-    def handle_error_popup(self, screenshot):
-        template = self.templates.get('error_popup')
-        if template is not None:
-            print("Handling error popup")
-            max_val, max_loc = match_template(screenshot, template)
-            if max_val > 0.8:
-                print(f"Error popup detected at location {max_loc}")
-                pyautogui.click(max_loc[0], max_loc[1])  # Example action to close popup
-                self.transition('main_screen')
-            else:
-                print("Error popup not detected, retrying main screen")
-                self.transition('main_screen')
-        else:
-            print("Error popup template not found, transitioning to main screen")
-            self.transition('main_screen')
-
-# Function to replay events
-def replay_events():
-    state_machine = StateMachine(templates)
-    next_screenshot_time = time.time() + SCREENSHOT_INTERVAL
-    while not stop_flag:
-        screen = screenshot()
-        state_machine.handle_state(screen)
-        time.sleep(1)  # Adjust the sleep interval as needed
-
-        # Take screenshot at intervals
-        current_time = time.time()
-        if current_time >= next_screenshot_time:
-            take_screenshot()
-            next_screenshot_time = current_time + SCREENSHOT_INTERVAL
-
-# Start replaying events in a separate thread to allow hotkey to work
-replay_thread = threading.Thread(target=replay_events)
-replay_thread.start()
-
-# Keep the main thread alive to listen for the 'k' key to stop
-keyboard.wait('k')
-stop_replay()
-replay_thread.join()
-
-print("Replay script has finished or was stopped.")
+        print("Completed one loop. Waiting for 10 minutes before the next iteration.")
+        time.sleep(600)  # Wait for 10 minutes before the next iteration
+finally:
+    driver.quit()
+    print("WebDriver closed.")
