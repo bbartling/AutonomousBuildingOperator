@@ -9,7 +9,7 @@ AutonomousBuildingOperator is a concept idea project aimed at creating an AI-dri
 4. Ask LLM to summarize all text data and comment if it notices any faults in the HVAC system. Make into a chat feature for a human to chat with the data and LLM in asking how the building has been operating where LLM would respond as if an RCx mechanical engineer for existing building studies.
 
 ## Install Python packages
-`pip install pillow pyautogui pynput selenium`
+`pip install nltk pillow pynput selenium`
 
 
 ## License
