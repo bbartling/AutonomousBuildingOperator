@@ -4,18 +4,21 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 # Ensure the data directory exists
 os.makedirs('data', exist_ok=True)
 
 # Credentials for login
-username = "asdf"
-password = "asdf"
+username = "TenantAud!t"
+password = "MoreS0lar!"
+
+HOURS = 24
 
 # URLs to visit
 urls = {
+    'alarm_console': 'https://10.200.200.26/hui/hui.html#app=alarms&view=SUMMARY',
     '1st_floor_space_temps': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/First_Floor/First_Floor.html&extra=/evox/equipment/generic/generic/6',
     'vav_1_12': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/vav_stc_vcwf_Add_Reheat/vav_stc_vcwf_Add_Reheat.html&extra=/evox/equipment/scc/vav/4',
     'vav_1_1': 'https://10.200.200.26/hui/hui.html#app=graphics&view=STATUS&obj=/uidata/Custom%20Graphics/vav_stc_vcwf_Add_Reheat/vav_stc_vcwf_Add_Reheat.html&extra=/evox/equipment/scc/vav/7',
@@ -56,6 +59,9 @@ def login():
     login_button.click()
     WebDriverWait(driver, 10).until(EC.url_contains("hui.html"))  # Adjust this as needed for a successful login
 
+# Record the start time
+start_time = datetime.now()
+
 try:
     # Perform login
     login()
@@ -65,6 +71,12 @@ try:
     driver.execute_script("document.body.style.zoom='100%'")  # Adjust the zoom level as needed
 
     while True:
+        # Calculate the elapsed time
+        elapsed_time = datetime.now() - start_time
+        if elapsed_time > timedelta(hours=HOURS):
+            print("24 hours have elapsed. Stopping the script.")
+            break
+
         for device_name, url in urls.items():
             print(f"Opening URL for {device_name}: {url}")
             driver.get(url)
